@@ -1,0 +1,20 @@
+{
+  "manifest_version": 2,
+  "name": "Soundcloud-rpc",
+  "version": "1.0",
+  "description": "...",
+  "homepage_url": "https://github.com/MageNume/soundcloud-rpc",
+  "icons": {
+    "48": "icons/icon.svg"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://soundcloud.com/*"
+      ],
+      "js": [
+        "app.js"
+      ]
+    }
+  ]
+}
