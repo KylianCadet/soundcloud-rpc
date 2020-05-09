@@ -1,13 +1,11 @@
+import time
 import rpc
 import websockets
 import asyncio
 import json
-import nest_asyncio
 import requests
-
-# RPC handshake
-rpc = rpc.RPC()
-rpc.connect()
+import sys
+import nest_asyncio
 
 
 def update(obj):
@@ -19,10 +17,12 @@ def update(obj):
     rpc.update()
     pass
 
+
 def progress(obj):
     rpc.set_state(obj['valuetext'])
     rpc.update()
     pass
+
 
 def play(obj):
     if obj['value'] == True:
@@ -31,21 +31,37 @@ def play(obj):
         rpc.clear()
     pass
 
+
+def connect(obj):
+    rpc.connect()
+
+
 fn_map = {
     'update': update,
     'progress': progress,
-    'play': play
+    'play': play,
+    'connect': connect
 }
 
-async def echo(websocket, path):
-    i = 0
+async def server_fn(websocket, path):
     async for message in websocket:
         obj = json.loads(message)
-        nest_asyncio.apply()
         try:
             fn_map[obj['type']](obj)
         except:
-            print("Wrong type key : " + obj['type'])
+            print("Error in function : " + obj['type'])
+            print(sys.exc_info())
+            print()
 
-asyncio.get_event_loop().run_until_complete(websockets.serve(echo, 'localhost', 8765))
-asyncio.get_event_loop().run_forever()
+
+rpc = rpc.RPC()
+
+loop = asyncio.get_event_loop()
+
+server = websockets.serve(server_fn, 'localhost', 8765)
+loop.run_until_complete(server)
+
+# Patch nested run_until_complete
+nest_asyncio.apply(loop)
+
+loop.run_forever()

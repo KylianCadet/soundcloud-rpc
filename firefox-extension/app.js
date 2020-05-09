@@ -33,7 +33,7 @@ function progressModified() {
   if (counter--)
     return
   counter = 1
-  var msg = {
+  const msg = {
     "type": "progress",
     "valuetext": progress.getAttribute("aria-valuetext"),
     "valueint": parseInt(progress.getAttribute("aria-valuenow"), 10)
@@ -43,7 +43,7 @@ function progressModified() {
 }
 
 function updatePlay() {
-  var msg = {
+  const msg = {
     "type": "play",
     "value": !play.classList.contains("playing")
   }
@@ -63,8 +63,7 @@ function panelModified() {
   }
 }
 
-function updateEventListener()
-{
+function updateEventListener() {
   progress.addEventListener("DOMAttrModified", progressModified);
   panel.addEventListener("DOMAttrModified", panelModified)
 }
@@ -76,7 +75,7 @@ function sendMessage(msg) {
 
 function update() {
   updateData()
-  var msg = {
+  const msg = {
     "type": "update",
     "image": image,
     "title": title,
@@ -89,9 +88,15 @@ function update() {
 }
 
 webSocket.onopen = function (event) {
+  console.log("SOCKET OPEN")
+  sendMessage({ "type": "connect" })
+  console.log("1")
   updateData();
+  console.log("2")
   updateEventListener();
+  console.log("3")
   update();
+  console.log("4")
 };
 
 webSocket.onmessage = function (event) {
