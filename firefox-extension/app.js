@@ -1,18 +1,35 @@
 const url = "ws://localhost:8765"
 var webSocket = new WebSocket(url);
 
-document.onchange = function (event) {
-  console.log("document has changed")
-}
-
-var panel = document.querySelector(".playControls__soundBadge")
-var title = document.querySelector(".playbackSoundBadge__avatar")
-var progress = document.querySelector(".playbackTimeline__progressWrapper")
-var play = document.querySelector(".playControls__play")
-var last_title = title.getAttribute("href")
+var image = null
+var panel = null
+var title = null
+var user = null
+var progress = null
+var play = null
+var last_title = null
 var counter = 1;
 
-progress.addEventListener("DOMAttrModified", () => {
+function updateData() {
+  image = document.querySelector("a.playbackSoundBadge__avatar > div")
+  image = image.firstElementChild.getAttribute("style")
+  image = image.substr(image.indexOf("\"") + 1, image.length)
+  image = image.substr(0, image.indexOf("\""))
+  image = image.replace("50x50", "500x500")
+
+  panel = document.querySelector(".playControls__soundBadge")
+  user = document.querySelector(".playbackSoundBadge__titleContextContainer > a")
+  user = user.getAttribute("title")
+
+  title = document.querySelector(".playbackSoundBadge__titleContextContainer > div > a")
+  title = title.getAttribute("title")
+  last_title = title
+
+  progress = document.querySelector(".playbackTimeline__progressWrapper")
+  play = document.querySelector(".playControls__play")
+}
+
+function progressModified() {
   if (counter--)
     return
   counter = 1
@@ -23,37 +40,47 @@ progress.addEventListener("DOMAttrModified", () => {
   }
   // progress update
   sendMessage(msg)
-})
-
-panel.addEventListener("DOMAttrModified", () => {
-  title = document.querySelector(".playbackSoundBadge__avatar")
-  if (title.getAttribute("href") == last_title) {
-    // Same title, play button has been triggered
-    updatePlay()
-  } else {
-    // Not the same title, big update
-    update()
-    last_title = title.getAttribute("href")
-  }
-})
-
-function sendMessage(msg) {
-  console.log(msg)
-  webSocket.send(JSON.stringify(msg))
 }
 
 function updatePlay() {
   var msg = {
     "type": "play",
-    "value": play.classList.contains("playing")
+    "value": !play.classList.contains("playing")
   }
   sendMessage(msg)
 }
 
+function panelModified() {
+  title = document.querySelector(".playbackSoundBadge__titleContextContainer > div > a")
+  title = title.getAttribute("title")
+  if (title == last_title) {
+    // Same title, play button has been triggered
+    updatePlay()
+  } else {
+    // Not the same title, big update
+    update()
+    last_title = title
+  }
+}
+
+function updateEventListener()
+{
+  progress.addEventListener("DOMAttrModified", progressModified);
+  panel.addEventListener("DOMAttrModified", panelModified)
+}
+
+
+function sendMessage(msg) {
+  webSocket.send(JSON.stringify(msg))
+}
+
 function update() {
+  updateData()
   var msg = {
     "type": "update",
-    "url": "https://soundcloud.com" + title.getAttribute("href"),
+    "image": image,
+    "title": title,
+    "user": user,
     "valuetext": progress.getAttribute("aria-valuetext"),
     "valueint": parseInt(progress.getAttribute("aria-valuenow"), 10),
     "playing": play.classList.contains("playing")
@@ -62,6 +89,8 @@ function update() {
 }
 
 webSocket.onopen = function (event) {
+  updateData();
+  updateEventListener();
   update();
 };
 
