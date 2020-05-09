@@ -14,6 +14,8 @@ def update(obj):
     rpc.set_details(obj['title'])
     rpc.set_large_text(obj['title'])
     rpc.set_large_image('sc')
+    rpc.set_small_image('sc')
+    rpc.set_small_text("By: " + obj['user'])
     rpc.update()
     pass
 
