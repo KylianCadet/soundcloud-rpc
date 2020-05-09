@@ -2,10 +2,14 @@ import pypresence
 import time
 import os
 
+from threading import Thread
+
 
 class RPC():
+    def __init__(self, loop=None, handler=None):
+        self._RPC = pypresence.Presence(self.client_id, loop=loop, handler=handler)
+
     client_id = os.environ['CLIENT_ID']
-    _RPC = pypresence.Presence(client_id)
     state = None
     details = None
     start = None
@@ -20,9 +24,11 @@ class RPC():
     spectate = None
     match = None
     instance = True
+    _connected = False
 
     def connect(self):
         self._RPC.connect()
+        self._connected = True
 
     def clear(self):
         self._RPC.clear()
@@ -72,7 +78,7 @@ class RPC():
     def set_instance(self, new_instance):
         self.instance = new_instance
 
-    def update(self):
+    def _update(self):
         self._RPC.update(state=self.state,
                          details=self.details,
                          start=self.start,
@@ -87,3 +93,9 @@ class RPC():
                          spectate=self.spectate,
                          match=self.match,
                          instance=self.instance)
+
+    def update(self):
+        if not self._connected:
+            print("Receive update call but not connected")
+            return
+        self._update()
