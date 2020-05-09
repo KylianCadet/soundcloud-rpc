@@ -52,7 +52,7 @@ class RPC():
         self.small_image = new_small_image
 
     def set_small_text(self, new_small_text):
-        self.small_image = new_small_text
+        self.small_text = new_small_text
 
     def set_party_id(self, new_party_id):
         self.party_id = new_party_id
@@ -74,16 +74,16 @@ class RPC():
 
     def update(self):
         self._RPC.update(state=self.state,
-                        details=self.details,
-                        start=self.start,
-                        end=self.end,
-                        large_image=self.large_image,
-                        large_text=self.large_text,
-                        small_image=self.small_image,
-                        small_text=self.small_text,
-                        party_id=self.party_id,
-                        party_size=self.party_size,
-                        join=self.join,
-                        spectate=self.spectate,
-                        match=self.match,
-                        instance=self.instance)
+                         details=self.details,
+                         start=self.start,
+                         end=self.end,
+                         large_image=self.large_image,
+                         large_text=self.large_text,
+                         small_image=self.small_image,
+                         small_text=self.small_text,
+                         party_id=self.party_id,
+                         party_size=self.party_size,
+                         join=self.join,
+                         spectate=self.spectate,
+                         match=self.match,
+                         instance=self.instance)
